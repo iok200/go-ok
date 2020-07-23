@@ -5,5 +5,5 @@ go 1.14
 require (
 	github.com/nacos-group/nacos-sdk-go v0.4.0
 	google.golang.org/grpc v1.30.0 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0
 )

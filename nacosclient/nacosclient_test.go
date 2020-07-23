@@ -2,12 +2,20 @@ package nacosclient
 
 import (
 	"fmt"
+	"github.com/iok200/go-ok/config"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"testing"
 	"time"
 )
 
 func TestClient(t *testing.T) {
+	config.SetFilePath("../ok.yaml")
+	conf, err := config.Load()
+	if err != nil {
+		return
+	} else {
+		fmt.Println(conf)
+	}
 	{
 		client, err := LoadConfigClient("127.0.0.1:8848")
 		if err != nil {
