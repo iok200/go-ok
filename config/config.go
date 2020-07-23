@@ -3,14 +3,7 @@ package config
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"sync"
 )
-
-var _defaultFilePath = "ok.yaml"
-
-func SetFilePath(path string) {
-	_defaultFilePath = path
-}
 
 type Config struct {
 	Nacos struct {
@@ -18,33 +11,15 @@ type Config struct {
 	} `yaml:"nacos"`
 }
 
-var _conf *Config
-var _confMu sync.Mutex
-
-func Load() (*Config, error) {
-	if _conf == nil {
-		_confMu.Lock()
-		if _conf == nil {
-			err := initConf()
-			if err != nil {
-				return nil, err
-			}
-		}
-		_confMu.Unlock()
-	}
-	return _conf, nil
-}
-
-func initConf() error {
-	fileData, err := ioutil.ReadFile(_defaultFilePath)
+func Get(fp string) (*Config, error) {
+	data, err := ioutil.ReadFile(fp)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	conf := new(Config)
-	err = yaml.Unmarshal(fileData, conf)
+	config := new(Config)
+	err = yaml.Unmarshal(data, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_conf = conf
-	return nil
+	return config, nil
 }

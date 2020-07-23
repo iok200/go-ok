@@ -1,5 +1,0 @@
-package micro
-
-func New() {
-
-}
