@@ -1,0 +1,1 @@
+module "github.com/iok200/go-ok"
