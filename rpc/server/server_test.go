@@ -14,5 +14,5 @@ func TestNew(t *testing.T) {
 		fmt.Println(err)
 		return
 	}
-	time.Sleep(time.Hour)
+	time.Sleep(time.Hour * 24)
 }

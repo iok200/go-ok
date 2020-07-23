@@ -8,6 +8,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"google.golang.org/grpc"
 	"net"
+	"strconv"
 	"sync"
 )
 
@@ -109,4 +110,8 @@ func (this *Server) GetService(f func(s *grpc.Server)) error {
 	}
 	f(this.server)
 	return nil
+}
+
+func (this *Server) GetAddr() string {
+	return this.config.Ip + ":" + strconv.Itoa(int(this.config.Port))
 }
