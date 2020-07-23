@@ -1,6 +1,7 @@
 package nacosclient
 
 import (
+	"github.com/iok200/go-ok/config"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
@@ -9,6 +10,27 @@ import (
 	"strings"
 	"sync"
 )
+
+var _client *Client
+var _client_mu sync.Mutex
+
+func Load() (*Client, error) {
+	if _client != nil {
+		return _client, nil
+	}
+	_client_mu.Lock()
+	defer _client_mu.Unlock()
+	if _client != nil {
+		return _client, nil
+	}
+	conf, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	client := New(conf.Nacos.Addr)
+	_client = client
+	return _client, nil
+}
 
 type Client struct {
 	addr         string
@@ -23,14 +45,20 @@ func New(addr string) *Client {
 	}
 }
 
-func (this *Client) GetNamingClient() naming_client.INamingClient {
-	return this.namingClient
+func (this *Client) GetNamingClient() (naming_client.INamingClient, error) {
+	if err := this.initNamingClient(); err != nil {
+		return nil, err
+	}
+	return this.namingClient, nil
 }
-func (this *Client) GetConfigClient() config_client.IConfigClient {
-	return this.configClient
+func (this *Client) GetConfigClient() (config_client.IConfigClient, error) {
+	if err := this.initConfigClient(); err != nil {
+		return nil, err
+	}
+	return this.configClient, nil
 }
 
-func (this *Client) InitNamingClient() error {
+func (this *Client) initNamingClient() error {
 	if this.namingClient != nil {
 		return nil
 	}
@@ -50,7 +78,7 @@ func (this *Client) InitNamingClient() error {
 	return nil
 }
 
-func (this *Client) InitConfigClient() error {
+func (this *Client) initConfigClient() error {
 	if this.configClient != nil {
 		return nil
 	}
