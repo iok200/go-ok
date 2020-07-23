@@ -13,27 +13,27 @@ import (
 )
 
 type Server struct {
-	config vo.RegisterInstanceParam
-	server *grpc.Server
-	mu     sync.Mutex
+	clusterName string
+	groupName   string
+	serviceName string
+	ip          string
+	port        int
+	server      *grpc.Server
+	mu          sync.Mutex
 }
 
 func New(clusterName, groupName, serviceName string) *Server {
-	return &Server{config: vo.RegisterInstanceParam{
-		Enable:      true,
-		Healthy:     true,
-		Ephemeral:   true,
-		ClusterName: clusterName,
-		GroupName:   groupName,
-		ServiceName: serviceName,
-	}}
+	return &Server{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
 func (this *Server) Run() error {
+	if this.server != nil {
+		return nil
+	}
 	this.mu.Lock()
 	defer this.mu.Unlock()
 	if this.server != nil {
-		return errors.New("server is runing")
+		return nil
 	}
 	nacosClient, err := nacosclient.Load()
 	if err != nil {
@@ -55,10 +55,19 @@ func (this *Server) Run() error {
 	if err != nil {
 		return err
 	}
-	this.config.Ip = localIp.String()
-	this.config.Port = uint64(localPort)
+	this.ip = localIp.String()
+	this.port = localPort
 	grpcServer := grpc.NewServer()
-	if ok, err := namingClient.RegisterInstance(this.config); !ok || err != nil {
+	if ok, err := namingClient.RegisterInstance(vo.RegisterInstanceParam{
+		Enable:      true,
+		Healthy:     true,
+		Ephemeral:   true,
+		ClusterName: this.clusterName,
+		GroupName:   this.groupName,
+		ServiceName: this.serviceName,
+		Ip:          this.ip,
+		Port:        uint64(this.port),
+	}); !ok || err != nil {
 		if err != nil {
 			return err
 		}
@@ -76,6 +85,7 @@ func (this *Server) Stop() {
 		return
 	}
 	this.server.Stop()
+	this.server = nil
 	nacosClient, err := nacosclient.Load()
 	if err != nil {
 		fmt.Println(err)
@@ -88,21 +98,21 @@ func (this *Server) Stop() {
 	}
 	if ok, err := namingClient.DeregisterInstance(vo.DeregisterInstanceParam{
 		Ephemeral:   true,
-		Ip:          this.config.Ip,
-		Port:        this.config.Port,
-		Cluster:     this.config.ClusterName,
-		GroupName:   this.config.GroupName,
-		ServiceName: this.config.ServiceName,
+		Ip:          this.ip,
+		Port:        uint64(this.port),
+		Cluster:     this.clusterName,
+		GroupName:   this.groupName,
+		ServiceName: this.serviceName,
 	}); !ok || err != nil {
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("注销服务失败:%+v", this.config)
+		fmt.Printf("注销服务失败:%+v", this)
 	}
 }
 
-func (this *Server) GetService(f func(s *grpc.Server)) error {
+func (this *Server) GetServer(f func(s *grpc.Server)) error {
 	this.mu.Lock()
 	defer this.mu.Unlock()
 	if this.server == nil {
@@ -113,5 +123,5 @@ func (this *Server) GetService(f func(s *grpc.Server)) error {
 }
 
 func (this *Server) GetAddr() string {
-	return this.config.Ip + ":" + strconv.Itoa(int(this.config.Port))
+	return this.ip + ":" + strconv.Itoa(this.port)
 }

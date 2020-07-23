@@ -1,8 +1,10 @@
 package example
 
 import (
+	"context"
 	"fmt"
 	"github.com/iok200/go-ok/config"
+	"github.com/iok200/go-ok/rpc/client"
 	"github.com/iok200/go-ok/rpc/server"
 	"google.golang.org/grpc"
 	"testing"
@@ -16,6 +18,11 @@ func TestServer(t *testing.T) {
 	time.Sleep(time.Hour)
 }
 
+func TestClient(t *testing.T) {
+	createClient()
+	time.Sleep(time.Hour)
+}
+
 func createServer() {
 	config.SetDefaultConfigPath("../ok.yaml")
 	var ser *server.Server
@@ -25,7 +32,7 @@ func createServer() {
 		fmt.Println(err)
 		return
 	}
-	if err = ser.GetService(func(s *grpc.Server) {
+	if err = ser.GetServer(func(s *grpc.Server) {
 		impl := new(Impl)
 		impl.Addr = ser.GetAddr()
 		RegisterHelloServer(s, impl)
@@ -35,20 +42,23 @@ func createServer() {
 	}
 }
 
-func TestClient(t *testing.T) {
+func createClient() {
 	config.SetDefaultConfigPath("../ok.yaml")
-	var ser *server.Server
-	var err error
-	ser = server.New("demoCluster", "demoGroup", "demoService")
-	if err = ser.Run(); err != nil {
+	cli := client.New("demoCluster", "demoGroup", "demoService")
+	if err := cli.Dial(); err != nil {
 		fmt.Println(err)
 		return
 	}
-	if err = ser.GetService(func(s *grpc.Server) {
-		RegisterHelloServer(s, new(Impl))
+	var helloClient HelloClient
+	if err := cli.GetConn(func(conn *grpc.ClientConn) {
+		helloClient = NewHelloClient(conn)
 	}); err != nil {
 		fmt.Println(err)
 		return
 	}
-	time.Sleep(time.Hour)
+	_, err := helloClient.SayHello(context.Background(), &HelloRequest{Name: "111"})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
