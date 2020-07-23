@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"github.com/iok200/go-ok/nacosclient"
 	"github.com/iok200/go-ok/util"
 	"github.com/nacos-group/nacos-sdk-go/vo"
@@ -77,6 +78,30 @@ func (this *Server) Stop() {
 		return
 	}
 	this.server.Stop()
+	nacosClient, err := nacosclient.Load()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	namingClient, err := nacosClient.GetNamingClient()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if ok, err := namingClient.DeregisterInstance(vo.DeregisterInstanceParam{
+		Ephemeral:   true,
+		Ip:          this.config.Ip,
+		Port:        this.config.Port,
+		Cluster:     this.config.ClusterName,
+		GroupName:   this.config.GroupName,
+		ServiceName: this.config.ServiceName,
+	}); !ok || err != nil {
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("注销服务失败:%+v", this.config)
+	}
 }
 
 //func (this *Server) Service() error {
