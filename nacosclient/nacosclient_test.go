@@ -9,7 +9,7 @@ import (
 
 func TestClient(t *testing.T) {
 	{
-		client, err := LoadConfigClient()
+		client, err := LoadConfigClient("127.0.0.1:8848")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -39,7 +39,7 @@ func TestClient(t *testing.T) {
 		}
 	}
 	{
-		_, err := LoadNamingClient()
+		_, err := LoadNamingClient("127.0.0.1:8848")
 		if err != nil {
 			fmt.Println(err)
 			return

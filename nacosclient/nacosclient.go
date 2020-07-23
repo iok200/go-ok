@@ -10,21 +10,16 @@ import (
 	"sync"
 )
 
-var _addr = "127.0.0.1:8848"
 var _namingClient naming_client.INamingClient
 var _namingClientMu sync.Mutex
 var _configClient config_client.IConfigClient
 var _configClientMu sync.Mutex
 
-func SetAddr(addr string) {
-	_addr = addr
-}
-
-func LoadNamingClient() (naming_client.INamingClient, error) {
+func LoadNamingClient(addr string) (naming_client.INamingClient, error) {
 	if _namingClient == nil {
 		_namingClientMu.Lock()
 		if _namingClient == nil {
-			conf, err := buildConfig()
+			conf, err := buildConfig(addr)
 			if err != nil {
 				return nil, err
 			}
@@ -39,11 +34,11 @@ func LoadNamingClient() (naming_client.INamingClient, error) {
 	return _namingClient, nil
 }
 
-func LoadConfigClient() (config_client.IConfigClient, error) {
+func LoadConfigClient(addr string) (config_client.IConfigClient, error) {
 	if _configClient == nil {
 		_configClientMu.Lock()
 		if _configClient == nil {
-			conf, err := buildConfig()
+			conf, err := buildConfig(addr)
 			if err != nil {
 				return nil, err
 			}
@@ -58,7 +53,7 @@ func LoadConfigClient() (config_client.IConfigClient, error) {
 	return _configClient, nil
 }
 
-func buildConfig() (map[string]interface{}, error) {
+func buildConfig(addr string) (map[string]interface{}, error) {
 	clientConfig := constant.ClientConfig{
 		TimeoutMs:      10 * 1000,
 		ListenInterval: 30 * 1000,
@@ -67,8 +62,8 @@ func buildConfig() (map[string]interface{}, error) {
 		CacheDir:       "nacos/cache",
 	}
 	var serverConfigs []constant.ServerConfig
-	if strings.Index(_addr, ",") != -1 {
-		addrs := strings.Split(_addr, ",")
+	if strings.Index(addr, ",") != -1 {
+		addrs := strings.Split(addr, ",")
 		for _, v := range addrs {
 			addrSplit := strings.Split(v, ":")
 			ip := addrSplit[0]
@@ -84,7 +79,7 @@ func buildConfig() (map[string]interface{}, error) {
 		}
 
 	} else {
-		addrSplit := strings.Split(_addr, ":")
+		addrSplit := strings.Split(addr, ":")
 		ip := addrSplit[0]
 		port, err := strconv.ParseInt(addrSplit[1], 10, 64)
 		if err != nil {
