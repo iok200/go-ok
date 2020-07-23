@@ -101,12 +101,12 @@ func (this *Server) Stop() {
 	}
 }
 
-//func (this *Server) Service() error {
-//	this.mu.Lock()
-//	defer this.mu.Unlock()
-//	if this.server == nil {
-//		return errors.New("server is not run")
-//	}
-//	this.server.RegisterService()
-//	return nil
-//}
+func (this *Server) GetService(f func(s *grpc.Server)) error {
+	this.mu.Lock()
+	defer this.mu.Unlock()
+	if this.server == nil {
+		return errors.New("server is not run")
+	}
+	f(this.server)
+	return nil
+}
