@@ -1,0 +1,79 @@
+2020/07/23 12:27:17 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:27:17 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:27:17 [INFO] udp server start, port: 55224
+2020/07/23 12:29:43 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:29:43 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:29:43 [INFO] udp server start, port: 55009
+2020/07/23 12:30:46 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:30:46 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:30:46 [INFO] udp server start, port: 55120
+2020/07/23 12:30:56 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:30:56 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:30:56 [INFO] udp server start, port: 55479
+2020/07/23 12:31:08 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:31:08 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:31:08 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:31:08 [ERROR] get config from server error:[404] config data not exist
+ 
+2020/07/23 12:31:08 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:31:08 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:31:08 [INFO] udp server start, port: 55602
+2020/07/23 12:31:45 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:31:45 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:31:45 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:31:45 [ERROR] get config from server error:[404] config data not exist
+ 
+2020/07/23 12:32:42 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:32:42 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:32:42 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:32:42 [ERROR] get config from server error:[404] config data not exist
+ 
+2020/07/23 12:32:42 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:32:42 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:32:42 [INFO] udp server start, port: 55750
+2020/07/23 12:33:02 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:33:02 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:33:02 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:33:02 [ERROR] get config from server error:[404] config data not exist
+ 
+2020/07/23 12:33:02 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:33:02 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:33:02 [INFO] udp server start, port: 55186
+2020/07/23 12:33:24 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:33:24 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:33:24 [ERROR] api</v1/cs/configs>,method:<GET>, params:<{"dataId":"6661","group":"6"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+> 
+2020/07/23 12:33:24 [ERROR] get config from server error:[404] config data not exist
+ 
+2020/07/23 12:33:24 [INFO] logDir:<nacos/logs>   cacheDir:<nacos/cache>
+2020/07/23 12:33:24 [ERROR]:read cacheDir:nacos/cache/naming failed!err:open nacos/cache/naming: no such file or directory 
+2020/07/23 12:33:24 [INFO] udp server start, port: 54980
