@@ -103,8 +103,8 @@ func (this *Client) buildConfig() (map[string]interface{}, error) {
 		TimeoutMs:      10 * 1000,
 		ListenInterval: 30 * 1000,
 		BeatInterval:   5 * 1000,
-		LogDir:         "nacos/logs",
-		CacheDir:       "nacos/cache",
+		LogDir:         "nacosCache/logs",
+		CacheDir:       "nacosCache/cache",
 	}
 	var serverConfigs []constant.ServerConfig
 	if strings.Index(this.addr, ",") != -1 {
