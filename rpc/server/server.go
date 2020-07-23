@@ -57,16 +57,13 @@ func (this *Server) Run() error {
 	this.config.Ip = localIp.String()
 	this.config.Port = uint64(localPort)
 	grpcServer := grpc.NewServer()
-	err = grpcServer.Serve(lis)
-	if err != nil {
-		return err
-	}
 	if ok, err := namingClient.RegisterInstance(this.config); !ok || err != nil {
 		if err != nil {
 			return err
 		}
 		return errors.New("service register failed")
 	}
+	go grpcServer.Serve(lis)
 	this.server = grpcServer
 	return nil
 }
