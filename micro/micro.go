@@ -1,0 +1,5 @@
+package micro
+
+func New() {
+
+}
