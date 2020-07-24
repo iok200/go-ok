@@ -4,8 +4,7 @@ import (
 	"context"
 	"github.com/iok200/go-ok/config"
 	"github.com/iok200/go-ok/log"
-	"github.com/iok200/go-ok/rpc/client"
-	"github.com/iok200/go-ok/rpc/server"
+	"github.com/iok200/go-ok/micro"
 	"google.golang.org/grpc"
 	"sync"
 	"testing"
@@ -22,7 +21,7 @@ func TestServer(t *testing.T) {
 
 func TestClient(t *testing.T) {
 	config.SetDefaultConfigPath("../ok.yaml")
-	cli := client.New("demoCluster", "demoGroup", "demoService")
+	cli := micro.New("demoCluster", "demoGroup", "demoService")
 	if err := cli.Dial(); err != nil {
 		log.Infoln(err)
 		return
@@ -53,11 +52,11 @@ func TestClient(t *testing.T) {
 	log.Infoln(endTime.Sub(beginTime).Milliseconds())
 }
 
-func createServer() *server.Server {
+func createServer() *micro.Server {
 	config.SetDefaultConfigPath("../ok.yaml")
-	var ser *server.Server
+	var ser *micro.Server
 	var err error
-	ser = server.New("demoCluster", "demoGroup", "demoService")
+	ser = micro.New("demoCluster", "demoGroup", "demoService")
 	if err = ser.Run(); err != nil {
 		log.Infoln(err)
 		return nil

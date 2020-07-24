@@ -1,4 +1,4 @@
-package server
+package micro
 
 import (
 	"errors"
@@ -22,7 +22,7 @@ type Server struct {
 	mu          sync.Mutex
 }
 
-func New(clusterName, groupName, serviceName string) *Server {
+func NewServer(clusterName, groupName, serviceName string) *Server {
 	return &Server{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 

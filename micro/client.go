@@ -1,4 +1,4 @@
-package client
+package micro
 
 import (
 	"errors"
@@ -136,7 +136,7 @@ type Client struct {
 	mu          sync.Mutex
 }
 
-func New(clusterName, groupName, serviceName string) *Client {
+func NewClient(clusterName, groupName, serviceName string) *Client {
 	return &Client{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
