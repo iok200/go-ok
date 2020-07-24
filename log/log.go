@@ -25,8 +25,8 @@ func initLog() {
 		return
 	}
 	_log_is_init = true
-	var cfg *Config
-	config.Parse(cfg)
+	var cfg Config
+	config.Parse(&cfg)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		ForceColors:               false,
 		DisableColors:             true,

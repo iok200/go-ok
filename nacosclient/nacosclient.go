@@ -23,9 +23,9 @@ func Load() *Client {
 		_client_mu.Lock()
 		defer _client_mu.Unlock()
 		if _client == nil {
-			var cfg *Config
-			config.Parse(cfg)
-			client := initNacos(cfg)
+			var cfg Config
+			config.Parse(&cfg)
+			client := initNacos(&cfg)
 			_client = client
 		}
 	}

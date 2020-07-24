@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+func init() {
+	//config.Name = "../ok.properties"
+}
+
 func TestServer(t *testing.T) {
 	for a := 0; a < 200; a++ {
 		createServer()
@@ -41,6 +45,22 @@ func TestClient(t *testing.T) {
 	}
 	wg.Wait()
 	endTime := time.Now()
+	log.Infoln(endTime.Sub(beginTime).Milliseconds())
+
+	wg.Add(count)
+	beginTime = time.Now()
+	for a := 0; a < count; a++ {
+		go func() {
+			_, err := helloClient.SayHello(context.Background(), &HelloRequest{Name: "111"})
+			wg.Done()
+			if err != nil {
+				log.Infoln(err)
+				return
+			}
+		}()
+	}
+	wg.Wait()
+	endTime = time.Now()
 	log.Infoln(endTime.Sub(beginTime).Milliseconds())
 }
 
