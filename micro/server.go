@@ -2,6 +2,7 @@ package micro
 
 import (
 	"errors"
+	"fmt"
 	"github.com/iok200/go-ok/log"
 	"github.com/iok200/go-ok/nacosclient"
 	"github.com/iok200/go-ok/util"
@@ -26,16 +27,12 @@ func NewServer(clusterName, groupName, serviceName string) *Server {
 	return &Server{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
-func (this *Server) Run() {
+func (this *Server) Run(port int) {
 	if this.server == nil {
 		this.mu.Lock()
 		defer this.mu.Unlock()
 		if this.server == nil {
-			lis, err := net.Listen("tcp", ":0")
-			if err != nil {
-				panic(err)
-			}
-			localPort, err := util.GetAddrPort(lis.Addr().String())
+			lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 			if err != nil {
 				panic(err)
 			}
@@ -44,12 +41,12 @@ func (this *Server) Run() {
 				panic(err)
 			}
 			this.ip = localIp.String()
-			this.port = localPort
+			this.port = port
 			grpcServer := grpc.NewServer()
 			if ok, err := nacosclient.Load().GetNamingClient().RegisterInstance(vo.RegisterInstanceParam{
 				Enable:      true,
 				Healthy:     true,
-				Ephemeral:   true,
+				Ephemeral:   false,
 				ClusterName: this.clusterName,
 				GroupName:   this.groupName,
 				ServiceName: this.serviceName,
@@ -83,10 +80,10 @@ func (this *Server) Stop() {
 		ServiceName: this.serviceName,
 	}); !ok || err != nil {
 		if err != nil {
-			log.Infoln(err)
+			log.Debugln(err)
 			return
 		}
-		log.Infof("注销服务失败:%+v\n", this)
+		log.Debugf("注销服务失败:%+v\n", this)
 	}
 }
 

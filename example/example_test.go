@@ -23,7 +23,7 @@ func TestServer(t *testing.T) {
 }
 
 func TestClient(t *testing.T) {
-	cli := micro.NewClient("demoCluster", "demoGroup", "demoService")
+	cli := micro.NewClient([]string{"demoCluster"}, "demoGroup", "demoService")
 	cli.Dial()
 	var helloClient HelloClient
 	cli.GetConn(func(conn *grpc.ClientConn) {
@@ -69,7 +69,7 @@ func TestClient(t *testing.T) {
 func createServer() *micro.Server {
 	var ser *micro.Server
 	ser = micro.NewServer("demoCluster", "demoGroup", "demoService")
-	ser.Run()
+	ser.Run(8080)
 	ser.GetServer(func(s *grpc.Server) {
 		impl := new(Impl)
 		impl.Addr = ser.GetAddr()

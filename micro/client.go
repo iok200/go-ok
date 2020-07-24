@@ -30,7 +30,7 @@ func (this *nacosBuilder) Scheme() string {
 
 func (this *nacosBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	serviceInfo := strings.Split(target.Endpoint, "|")
-	clusterName := serviceInfo[0]
+	clusterName := strings.Split(serviceInfo[0], "***")
 	groupName := serviceInfo[1]
 	serviceName := serviceInfo[2]
 	r := &nacosResovler{
@@ -47,7 +47,7 @@ func (this *nacosBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 }
 
 type nacosResovler struct {
-	clusterName  string
+	clusterName  []string
 	groupName    string
 	serviceName  string
 	cc           resolver.ClientConn
@@ -61,7 +61,7 @@ func (this *nacosResovler) Close() {
 
 func (this *nacosResovler) fetch() {
 	instances, err := this.namingClient.SelectAllInstances(vo.SelectAllInstancesParam{
-		Clusters:    []string{this.clusterName},
+		Clusters:    this.clusterName,
 		GroupName:   this.groupName,
 		ServiceName: this.serviceName,
 	})
@@ -85,23 +85,23 @@ func (this *nacosResovler) fetch() {
 
 func (this *nacosResovler) subscribe() {
 	if err := this.namingClient.Subscribe(&vo.SubscribeParam{
-		Clusters:    []string{this.clusterName},
+		Clusters:    this.clusterName,
 		GroupName:   this.groupName,
 		ServiceName: this.serviceName,
 		SubscribeCallback: func(services []model.SubscribeService, err error) {
 			addrs := make([]resolver.Address, len(services))
 			if len(services) != 0 {
-				log.Infoln("----------客户端服务发现----------")
+				log.Debugln("----------客户端服务发现----------")
 			}
 			for i, s := range services {
 				addrs[i] = resolver.Address{
 					Addr:       s.Ip + ":" + strconv.Itoa(int(s.Port)),
 					ServerName: s.ServiceName,
 				}
-				log.Infoln(s.Ip + ":" + strconv.Itoa(int(s.Port)))
+				log.Debugln(s.Ip + ":" + strconv.Itoa(int(s.Port)))
 			}
 			if len(services) != 0 {
-				log.Infoln("----------客户端服务发现----------")
+				log.Debugln("----------客户端服务发现----------")
 			}
 			var serviceConfig *serviceconfig.ParseResult
 			if len(services) == 0 {
@@ -119,7 +119,7 @@ func (this *nacosResovler) subscribe() {
 
 func (this *nacosResovler) unsubscribe() {
 	_ = this.namingClient.Unsubscribe(&vo.SubscribeParam{
-		Clusters:    []string{this.clusterName},
+		Clusters:    this.clusterName,
 		GroupName:   this.groupName,
 		ServiceName: this.serviceName,
 	})
@@ -129,14 +129,17 @@ func (this *nacosResovler) ResolveNow(options resolver.ResolveNowOptions) {
 }
 
 type Client struct {
-	clusterName string
+	clusterName []string
 	groupName   string
 	serviceName string
 	conn        *grpc.ClientConn
 	mu          sync.Mutex
 }
 
-func NewClient(clusterName, groupName, serviceName string) *Client {
+func NewClient(clusterName []string, groupName, serviceName string) *Client {
+	if clusterName == nil {
+		clusterName = []string{}
+	}
 	return &Client{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
@@ -149,7 +152,7 @@ func (this *Client) Dial() {
 	if this.conn != nil {
 		return
 	}
-	conn, err := grpc.Dial("nacos:///"+this.clusterName+"|"+this.groupName+"|"+this.serviceName, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
+	conn, err := grpc.Dial("nacos:///"+strings.Join(this.clusterName, "***")+"|"+this.groupName+"|"+this.serviceName, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		panic(err)
 	}
