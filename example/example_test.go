@@ -15,7 +15,7 @@ func init() {
 }
 
 func TestServer(t *testing.T) {
-	for a := 0; a < 200; a++ {
+	for a := 0; a < 100; a++ {
 		createServer()
 	}
 	log.Infoln("服务创建完成")
@@ -29,7 +29,7 @@ func TestClient(t *testing.T) {
 	cli.GetConn(func(conn *grpc.ClientConn) {
 		helloClient = NewHelloClient(conn)
 	})
-	count := 10000
+	count := 20000
 	var wg sync.WaitGroup
 	wg.Add(count)
 	beginTime := time.Now()
@@ -47,21 +47,23 @@ func TestClient(t *testing.T) {
 	endTime := time.Now()
 	log.Infoln(endTime.Sub(beginTime).Milliseconds())
 
-	wg.Add(count)
-	beginTime = time.Now()
-	for a := 0; a < count; a++ {
-		go func() {
-			_, err := helloClient.SayHello(context.Background(), &HelloRequest{Name: "111"})
-			wg.Done()
-			if err != nil {
-				log.Infoln(err)
-				return
-			}
-		}()
+	for a := 0; a < 100; a++ {
+		wg.Add(count)
+		beginTime = time.Now()
+		for a := 0; a < count; a++ {
+			go func() {
+				_, err := helloClient.SayHello(context.Background(), &HelloRequest{Name: "111"})
+				wg.Done()
+				if err != nil {
+					log.Infoln(err)
+					return
+				}
+			}()
+		}
+		wg.Wait()
+		endTime = time.Now()
+		log.Infoln(endTime.Sub(beginTime).Milliseconds())
 	}
-	wg.Wait()
-	endTime = time.Now()
-	log.Infoln(endTime.Sub(beginTime).Milliseconds())
 }
 
 func createServer() *micro.Server {
