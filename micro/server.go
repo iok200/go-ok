@@ -90,14 +90,13 @@ func (this *Server) Stop() {
 	}
 }
 
-func (this *Server) GetServer(f func(s *grpc.Server)) error {
+func (this *Server) GetServer(f func(s *grpc.Server)) {
 	this.mu.Lock()
 	defer this.mu.Unlock()
 	if this.server == nil {
-		return errors.New("server is not run")
+		panic(errors.New("server is not run"))
 	}
 	f(this.server)
-	return nil
 }
 
 func (this *Server) GetAddr() string {

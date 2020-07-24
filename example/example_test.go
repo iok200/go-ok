@@ -2,7 +2,6 @@ package example
 
 import (
 	"context"
-	"github.com/iok200/go-ok/config"
 	"github.com/iok200/go-ok/log"
 	"github.com/iok200/go-ok/micro"
 	"google.golang.org/grpc"
@@ -20,19 +19,12 @@ func TestServer(t *testing.T) {
 }
 
 func TestClient(t *testing.T) {
-	config.SetDefaultConfigPath("../ok.yaml")
-	cli := micro.New("demoCluster", "demoGroup", "demoService")
-	if err := cli.Dial(); err != nil {
-		log.Infoln(err)
-		return
-	}
+	cli := micro.NewClient("demoCluster", "demoGroup", "demoService")
+	cli.Dial()
 	var helloClient HelloClient
-	if err := cli.GetConn(func(conn *grpc.ClientConn) {
+	cli.GetConn(func(conn *grpc.ClientConn) {
 		helloClient = NewHelloClient(conn)
-	}); err != nil {
-		log.Infoln(err)
-		return
-	}
+	})
 	count := 10000
 	var wg sync.WaitGroup
 	wg.Add(count)
@@ -53,21 +45,13 @@ func TestClient(t *testing.T) {
 }
 
 func createServer() *micro.Server {
-	config.SetDefaultConfigPath("../ok.yaml")
 	var ser *micro.Server
-	var err error
-	ser = micro.New("demoCluster", "demoGroup", "demoService")
-	if err = ser.Run(); err != nil {
-		log.Infoln(err)
-		return nil
-	}
-	if err = ser.GetServer(func(s *grpc.Server) {
+	ser = micro.NewServer("demoCluster", "demoGroup", "demoService")
+	ser.Run()
+	ser.GetServer(func(s *grpc.Server) {
 		impl := new(Impl)
 		impl.Addr = ser.GetAddr()
 		RegisterHelloServer(s, impl)
-	}); err != nil {
-		log.Infoln(err)
-		return nil
-	}
+	})
 	return ser
 }

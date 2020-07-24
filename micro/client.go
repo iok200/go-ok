@@ -140,21 +140,20 @@ func NewClient(clusterName, groupName, serviceName string) *Client {
 	return &Client{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
-func (this *Client) Dial() error {
+func (this *Client) Dial() {
 	if this.conn != nil {
-		return nil
+		return
 	}
 	this.mu.Lock()
 	defer this.mu.Unlock()
 	if this.conn != nil {
-		return nil
+		return
 	}
 	conn, err := grpc.Dial("nacos:///"+this.clusterName+"|"+this.groupName+"|"+this.serviceName, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
-		return err
+		panic(err)
 	}
 	this.conn = conn
-	return nil
 }
 
 func (this *Client) Close() {
@@ -170,12 +169,11 @@ func (this *Client) Close() {
 	this.conn = nil
 }
 
-func (this *Client) GetConn(f func(conn *grpc.ClientConn)) error {
+func (this *Client) GetConn(f func(conn *grpc.ClientConn)) {
 	this.mu.Lock()
 	defer this.mu.Unlock()
 	if this.conn == nil {
-		return errors.New("client is not connection")
+		panic(errors.New("client is not connection"))
 	}
 	f(this.conn)
-	return nil
 }
