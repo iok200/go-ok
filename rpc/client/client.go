@@ -8,6 +8,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/model"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/resolver"
 	"google.golang.org/grpc/serviceconfig"
 	"strconv"
@@ -99,7 +100,7 @@ func (this *nacosResovler) subscribe() error {
 		SubscribeCallback: func(services []model.SubscribeService, err error) {
 			addrs := make([]resolver.Address, len(services))
 			if len(services) != 0 {
-				fmt.Println("----------服务发现----------")
+				fmt.Println("----------客户端服务发现----------")
 			}
 			for i, s := range services {
 				addrs[i] = resolver.Address{
@@ -109,7 +110,7 @@ func (this *nacosResovler) subscribe() error {
 				fmt.Println(s.Ip + ":" + strconv.Itoa(int(s.Port)))
 			}
 			if len(services) != 0 {
-				fmt.Println("----------服务发现----------")
+				fmt.Println("----------客户端服务发现----------")
 			}
 			var serviceConfig *serviceconfig.ParseResult
 			if len(services) == 0 {
@@ -155,7 +156,7 @@ func (this *Client) Dial() error {
 	if this.conn != nil {
 		return nil
 	}
-	conn, err := grpc.Dial("nacos:///"+this.clusterName+"|"+this.groupName+"|"+this.serviceName, grpc.WithInsecure())
+	conn, err := grpc.Dial("nacos:///"+this.clusterName+"|"+this.groupName+"|"+this.serviceName, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		return err
 	}
