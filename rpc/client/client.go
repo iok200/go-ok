@@ -136,16 +136,15 @@ func (this *nacosResovler) ResolveNow(options resolver.ResolveNowOptions) {
 }
 
 type Client struct {
-	currServiceName string
-	clusterName     string
-	groupName       string
-	serviceName     string
-	conn            *grpc.ClientConn
-	mu              sync.Mutex
+	clusterName string
+	groupName   string
+	serviceName string
+	conn        *grpc.ClientConn
+	mu          sync.Mutex
 }
 
-func New(currServiceName, clusterName, groupName, serviceName string) *Client {
-	return &Client{currServiceName: currServiceName, clusterName: clusterName, groupName: groupName, serviceName: serviceName}
+func New(clusterName, groupName, serviceName string) *Client {
+	return &Client{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
 func (this *Client) Dial() error {
