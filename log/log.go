@@ -1,4 +1,4 @@
-package ok
+package log
 
 import (
 	"github.com/iok200/go-ok/config"
@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-type LogConfig struct {
+type Config struct {
 	Name string `properties:"log.name,default=info.log"`
 }
 
@@ -25,7 +25,7 @@ func initLog() {
 		return
 	}
 	_log_is_init = true
-	var cfg LogConfig
+	var cfg Config
 	if err := config.Load().Decode(&cfg); err != nil {
 		panic(err)
 	}
