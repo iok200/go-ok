@@ -33,26 +33,16 @@ func (this *nacosBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 	clusterName := serviceInfo[0]
 	groupName := serviceInfo[1]
 	serviceName := serviceInfo[2]
-	nacosClient, err := nacosclient.Load()
-	if err != nil {
-		return nil, err
-	}
-	namingClient, err := nacosClient.GetNamingClient()
-	if err != nil {
-		return nil, err
-	}
 	r := &nacosResovler{
 		clusterName:  clusterName,
 		groupName:    groupName,
 		serviceName:  serviceName,
-		namingClient: namingClient,
+		namingClient: nacosclient.Load().GetNamingClient(),
 		cc:           cc,
 		opts:         opts,
 	}
 	r.fetch()
-	if err := r.subscribe(); err != nil {
-		return nil, err
-	}
+	r.subscribe()
 	return r, nil
 }
 
@@ -93,8 +83,8 @@ func (this *nacosResovler) fetch() {
 	})
 }
 
-func (this *nacosResovler) subscribe() error {
-	return this.namingClient.Subscribe(&vo.SubscribeParam{
+func (this *nacosResovler) subscribe() {
+	if err := this.namingClient.Subscribe(&vo.SubscribeParam{
 		Clusters:    []string{this.clusterName},
 		GroupName:   this.groupName,
 		ServiceName: this.serviceName,
@@ -122,7 +112,9 @@ func (this *nacosResovler) subscribe() error {
 				ServiceConfig: serviceConfig,
 			})
 		},
-	})
+	}); err != nil {
+		panic(err)
+	}
 }
 
 func (this *nacosResovler) unsubscribe() {
@@ -174,7 +166,7 @@ func (this *Client) Close() {
 	if this.conn == nil {
 		return
 	}
-	this.conn.Close()
+	_ = this.conn.Close()
 	this.conn = nil
 }
 

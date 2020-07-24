@@ -26,56 +26,44 @@ func New(clusterName, groupName, serviceName string) *Server {
 	return &Server{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
-func (this *Server) Run() error {
-	if this.server != nil {
-		return nil
-	}
-	this.mu.Lock()
-	defer this.mu.Unlock()
-	if this.server != nil {
-		return nil
-	}
-	nacosClient, err := nacosclient.Load()
-	if err != nil {
-		return err
-	}
-	namingClient, err := nacosClient.GetNamingClient()
-	if err != nil {
-		return err
-	}
-	lis, err := net.Listen("tcp", ":0")
-	if err != nil {
-		return err
-	}
-	localPort, err := util.GetAddrPort(lis.Addr().String())
-	if err != nil {
-		return err
-	}
-	localIp, err := util.GetIP()
-	if err != nil {
-		return err
-	}
-	this.ip = localIp.String()
-	this.port = localPort
-	grpcServer := grpc.NewServer()
-	if ok, err := namingClient.RegisterInstance(vo.RegisterInstanceParam{
-		Enable:      true,
-		Healthy:     true,
-		Ephemeral:   true,
-		ClusterName: this.clusterName,
-		GroupName:   this.groupName,
-		ServiceName: this.serviceName,
-		Ip:          this.ip,
-		Port:        uint64(this.port),
-	}); !ok || err != nil {
-		if err != nil {
-			return err
+func (this *Server) Run() {
+	if this.server == nil {
+		this.mu.Lock()
+		defer this.mu.Unlock()
+		if this.server == nil {
+			lis, err := net.Listen("tcp", ":0")
+			if err != nil {
+				panic(err)
+			}
+			localPort, err := util.GetAddrPort(lis.Addr().String())
+			if err != nil {
+				panic(err)
+			}
+			localIp, err := util.GetIP()
+			if err != nil {
+				panic(err)
+			}
+			this.ip = localIp.String()
+			this.port = localPort
+			grpcServer := grpc.NewServer()
+			if ok, err := nacosclient.Load().GetNamingClient().RegisterInstance(vo.RegisterInstanceParam{
+				Enable:      true,
+				Healthy:     true,
+				Ephemeral:   true,
+				ClusterName: this.clusterName,
+				GroupName:   this.groupName,
+				ServiceName: this.serviceName,
+				Ip:          this.ip,
+				Port:        uint64(this.port),
+			}); !ok || err != nil {
+				if err != nil {
+					panic(err)
+				}
+			}
+			go grpcServer.Serve(lis)
+			this.server = grpcServer
 		}
-		return errors.New("service register failed")
 	}
-	go grpcServer.Serve(lis)
-	this.server = grpcServer
-	return nil
 }
 
 func (this *Server) Stop() {
@@ -86,17 +74,7 @@ func (this *Server) Stop() {
 	}
 	this.server.Stop()
 	this.server = nil
-	nacosClient, err := nacosclient.Load()
-	if err != nil {
-		log.Infoln(err)
-		return
-	}
-	namingClient, err := nacosClient.GetNamingClient()
-	if err != nil {
-		log.Infoln(err)
-		return
-	}
-	if ok, err := namingClient.DeregisterInstance(vo.DeregisterInstanceParam{
+	if ok, err := nacosclient.Load().GetNamingClient().DeregisterInstance(vo.DeregisterInstanceParam{
 		Ephemeral:   true,
 		Ip:          this.ip,
 		Port:        uint64(this.port),

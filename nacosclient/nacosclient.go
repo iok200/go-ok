@@ -18,7 +18,7 @@ type Config struct {
 var _client *Client
 var _client_mu sync.Mutex
 
-func Load() (*Client, error) {
+func Load() *Client {
 	if _client == nil {
 		_client_mu.Lock()
 		defer _client_mu.Unlock()
@@ -29,7 +29,7 @@ func Load() (*Client, error) {
 			_client = client
 		}
 	}
-	return _client, nil
+	return _client
 }
 
 type Client struct {
