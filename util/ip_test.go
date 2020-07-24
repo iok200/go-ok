@@ -2,13 +2,14 @@ package util
 
 import (
 	"fmt"
+	"github.com/iok200/go-ok/log"
 	"testing"
 )
 
 func TestIp(t *testing.T) {
 	ip, err := getIP()
 	if err != nil {
-		fmt.Println(err)
+		log.Infoln(err)
 	}
-	fmt.Println(ip.String())
+	log.Infoln(ip.String())
 }

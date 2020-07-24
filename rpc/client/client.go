@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+	"github.com/iok200/go-ok/log"
 	"github.com/iok200/go-ok/nacosclient"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/model"
@@ -100,17 +101,17 @@ func (this *nacosResovler) subscribe() error {
 		SubscribeCallback: func(services []model.SubscribeService, err error) {
 			addrs := make([]resolver.Address, len(services))
 			if len(services) != 0 {
-				fmt.Println("----------客户端服务发现----------")
+				log.Infoln("----------客户端服务发现----------")
 			}
 			for i, s := range services {
 				addrs[i] = resolver.Address{
 					Addr:       s.Ip + ":" + strconv.Itoa(int(s.Port)),
 					ServerName: s.ServiceName,
 				}
-				fmt.Println(s.Ip + ":" + strconv.Itoa(int(s.Port)))
+				log.Infoln(s.Ip + ":" + strconv.Itoa(int(s.Port)))
 			}
 			if len(services) != 0 {
-				fmt.Println("----------客户端服务发现----------")
+				log.Infoln("----------客户端服务发现----------")
 			}
 			var serviceConfig *serviceconfig.ParseResult
 			if len(services) == 0 {

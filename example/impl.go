@@ -2,7 +2,6 @@ package example
 
 import (
 	context "context"
-	"fmt"
 )
 
 type Impl struct {
@@ -10,7 +9,7 @@ type Impl struct {
 }
 
 func (this *Impl) SayHello(ctx context.Context, request *HelloRequest) (*HelloReply, error) {
-	fmt.Printf("Server:%s\n", this.Addr)
+	//log.Infof("Server:%s", this.Addr)
 	return &HelloReply{
 		Message: "ddd",
 	}, nil
