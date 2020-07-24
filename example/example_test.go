@@ -23,14 +23,14 @@ func TestClient(t *testing.T) {
 	time.Sleep(time.Hour)
 }
 
-func createServer() {
+func createServer() *server.Server {
 	config.SetDefaultConfigPath("../ok.yaml")
 	var ser *server.Server
 	var err error
 	ser = server.New("demoCluster", "demoGroup", "demoService")
 	if err = ser.Run(); err != nil {
 		fmt.Println(err)
-		return
+		return nil
 	}
 	if err = ser.GetServer(func(s *grpc.Server) {
 		impl := new(Impl)
@@ -38,8 +38,9 @@ func createServer() {
 		RegisterHelloServer(s, impl)
 	}); err != nil {
 		fmt.Println(err)
-		return
+		return nil
 	}
+	return ser
 }
 
 func createClient() {
@@ -56,6 +57,7 @@ func createClient() {
 		fmt.Println(err)
 		return
 	}
+	time.Sleep(time.Second * 10)
 	for a := 0; a < 10; a++ {
 		_, err := helloClient.SayHello(context.Background(), &HelloRequest{Name: "111"})
 		if err != nil {
