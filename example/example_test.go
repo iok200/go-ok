@@ -56,9 +56,11 @@ func createClient() {
 		fmt.Println(err)
 		return
 	}
-	_, err := helloClient.SayHello(context.Background(), &HelloRequest{Name: "111"})
-	if err != nil {
-		fmt.Println(err)
-		return
+	for a := 0; a < 10; a++ {
+		_, err := helloClient.SayHello(context.Background(), &HelloRequest{Name: "111"})
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }

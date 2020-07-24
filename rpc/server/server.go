@@ -108,7 +108,7 @@ func (this *Server) Stop() {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("注销服务失败:%+v", this)
+		fmt.Printf("注销服务失败:%+v\n", this)
 	}
 }
 

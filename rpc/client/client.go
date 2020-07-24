@@ -68,10 +68,10 @@ func (this *nacosResovler) Close() {
 }
 
 func (this *nacosResovler) fetch() {
-	instances, err := this.namingClient.SelectInstances(vo.SelectInstancesParam{
-		ServiceName: "demo.go",
-		Clusters:    []string{"a"},
-		HealthyOnly: true,
+	instances, err := this.namingClient.SelectAllInstances(vo.SelectAllInstancesParam{
+		Clusters:    []string{this.clusterName},
+		GroupName:   this.groupName,
+		ServiceName: this.serviceName,
 	})
 	var serviceConfig *serviceconfig.ParseResult
 	addrs := make([]resolver.Address, len(instances))
@@ -97,13 +97,19 @@ func (this *nacosResovler) subscribe() error {
 		GroupName:   this.groupName,
 		ServiceName: this.serviceName,
 		SubscribeCallback: func(services []model.SubscribeService, err error) {
-			fmt.Printf("服务发现:%+v", services)
 			addrs := make([]resolver.Address, len(services))
+			if len(services) != 0 {
+				fmt.Println("----------服务发现----------")
+			}
 			for i, s := range services {
 				addrs[i] = resolver.Address{
 					Addr:       s.Ip + ":" + strconv.Itoa(int(s.Port)),
 					ServerName: s.ServiceName,
 				}
+				fmt.Println(s.Ip + ":" + strconv.Itoa(int(s.Port)))
+			}
+			if len(services) != 0 {
+				fmt.Println("----------服务发现----------")
 			}
 			var serviceConfig *serviceconfig.ParseResult
 			if len(services) == 0 {
