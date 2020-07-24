@@ -11,94 +11,78 @@ import (
 	"sync"
 )
 
+type Config struct {
+	Addr string `properties:"nacos.addr,default=127.0.0.1:8848"`
+}
+
 var _client *Client
 var _client_mu sync.Mutex
 
 func Load() (*Client, error) {
-	if _client != nil {
-		return _client, nil
+	if _client == nil {
+		_client_mu.Lock()
+		defer _client_mu.Unlock()
+		if _client == nil {
+			var cfg *Config
+			config.Parse(cfg)
+			client := initNacos(cfg)
+			_client = client
+		}
 	}
-	_client_mu.Lock()
-	defer _client_mu.Unlock()
-	if _client != nil {
-		return _client, nil
-	}
-	conf, err := config.Load()
-	if err != nil {
-		return nil, err
-	}
-	client := New(conf.Nacos.Addr)
-	_client = client
 	return _client, nil
 }
 
 type Client struct {
-	addr         string
+	config       *Config
 	namingClient naming_client.INamingClient
 	configClient config_client.IConfigClient
 	mu           sync.Mutex
 }
 
-func New(addr string) *Client {
-	return &Client{
-		addr: addr,
-	}
+func initNacos(cfg *Config) *Client {
+	return &Client{config: cfg}
 }
 
-func (this *Client) GetNamingClient() (naming_client.INamingClient, error) {
-	if err := this.initNamingClient(); err != nil {
-		return nil, err
-	}
-	return this.namingClient, nil
+func (this *Client) GetNamingClient() naming_client.INamingClient {
+	this.initNamingClient()
+	return this.namingClient
 }
-func (this *Client) GetConfigClient() (config_client.IConfigClient, error) {
-	if err := this.initConfigClient(); err != nil {
-		return nil, err
-	}
-	return this.configClient, nil
+func (this *Client) GetConfigClient() config_client.IConfigClient {
+	this.initConfigClient()
+	return this.configClient
 }
 
-func (this *Client) initNamingClient() error {
-	if this.namingClient != nil {
-		return nil
-	}
-	this.mu.Lock()
-	defer this.mu.Unlock()
+func (this *Client) initNamingClient() {
 	if this.namingClient == nil {
-		config, err := this.buildConfig()
-		if err != nil {
-			return err
+		this.mu.Lock()
+		defer this.mu.Unlock()
+		if this.namingClient == nil {
+			cfg := this.buildConfig()
+			namingClient, err := clients.CreateNamingClient(cfg)
+			if err != nil {
+				panic(err)
+			}
+			this.namingClient = namingClient
 		}
-		namingClient, err := clients.CreateNamingClient(config)
-		if err != nil {
-			return err
-		}
-		this.namingClient = namingClient
 	}
-	return nil
 }
 
-func (this *Client) initConfigClient() error {
-	if this.configClient != nil {
-		return nil
-	}
-	this.mu.Lock()
-	defer this.mu.Unlock()
+func (this *Client) initConfigClient() {
 	if this.configClient == nil {
-		config, err := this.buildConfig()
-		if err != nil {
-			return err
+		this.mu.Lock()
+		defer this.mu.Unlock()
+		if this.configClient == nil {
+			cfg := this.buildConfig()
+			configClient, err := clients.CreateConfigClient(cfg)
+			if err != nil {
+				panic(err)
+			}
+			this.configClient = configClient
 		}
-		configClient, err := clients.CreateConfigClient(config)
-		if err != nil {
-			return err
-		}
-		this.configClient = configClient
 	}
-	return nil
 }
 
-func (this *Client) buildConfig() (map[string]interface{}, error) {
+func (this *Client) buildConfig() map[string]interface{} {
 	clientConfig := constant.ClientConfig{
 		TimeoutMs:            10 * 1000,
 		ListenInterval:       30 * 1000,
@@ -110,14 +94,14 @@ func (this *Client) buildConfig() (map[string]interface{}, error) {
 		CacheDir:             "__NacosCache__/cache",
 	}
 	var serverConfigs []constant.ServerConfig
-	if strings.Index(this.addr, ",") != -1 {
-		addrs := strings.Split(this.addr, ",")
+	if strings.Index(this.config.Addr, ",") != -1 {
+		addrs := strings.Split(this.config.Addr, ",")
 		for _, v := range addrs {
 			addrSplit := strings.Split(v, ":")
 			ip := addrSplit[0]
 			port, err := strconv.ParseInt(addrSplit[1], 10, 64)
 			if err != nil {
-				return nil, err
+				panic(err)
 			}
 			serverConfigs = append(serverConfigs, constant.ServerConfig{
 				ContextPath: "/nacos",
@@ -127,11 +111,11 @@ func (this *Client) buildConfig() (map[string]interface{}, error) {
 		}
 
 	} else {
-		addrSplit := strings.Split(this.addr, ":")
+		addrSplit := strings.Split(this.config.Addr, ":")
 		ip := addrSplit[0]
 		port, err := strconv.ParseInt(addrSplit[1], 10, 64)
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 		serverConfigs = append(serverConfigs, constant.ServerConfig{
 			ContextPath: "/nacos",
@@ -142,5 +126,5 @@ func (this *Client) buildConfig() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"serverConfigs": serverConfigs,
 		"clientConfig":  clientConfig,
-	}, nil
+	}
 }

@@ -20,3 +20,9 @@ func Load() *properties.Properties {
 	}
 	return _config
 }
+
+func Parse(cfg interface{}) {
+	if err := Load().Decode(cfg); err != nil {
+		panic(err)
+	}
+}
