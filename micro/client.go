@@ -143,6 +143,10 @@ func NewClient(clusterName []string, groupName, serviceName string) *Client {
 	return &Client{clusterName: clusterName, groupName: groupName, serviceName: serviceName}
 }
 
+var clientConfigStr = `{
+	"LoadBalancingPolicy": "%s"
+}`
+
 func (this *Client) Dial() {
 	if this.conn != nil {
 		return
@@ -152,7 +156,7 @@ func (this *Client) Dial() {
 	if this.conn != nil {
 		return
 	}
-	conn, err := grpc.Dial("nacos:///"+strings.Join(this.clusterName, "***")+"|"+this.groupName+"|"+this.serviceName, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
+	conn, err := grpc.Dial("nacos:///"+strings.Join(this.clusterName, "***")+"|"+this.groupName+"|"+this.serviceName, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(fmt.Sprintf(clientConfigStr, roundrobin.Name)))
 	if err != nil {
 		panic(err)
 	}
